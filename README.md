@@ -12,5 +12,11 @@ Of course the caveat is that reviews can be heavily skewed (through manipulation
 
 Currently wrote this project mainly for food only, but can certainly use it for other services as well. 
 
+## How-to:
+
+To use this, you will need to sign up for a api_key at https://www.yelp.com/fusion (literally took 10 seconds).  Then, create a new python file named config.py and save api_key = '{your_api_key}'.  Then, run 'elite_yelp_browser.py'. Output will be:
+1. CSV file saved to directory (matching search criteria) for future browsing. 
+2. Open up tabs on your browser for immediate browsing. 
+
 ## Future plans:
 Will definitely be adding to this repository as I go as I see fit.  This is just the first iteration of this project. 
