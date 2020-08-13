@@ -4,10 +4,12 @@ Spyder Editor
 
 This is a temporary script file.
 """
-
+import config
 import requests
 import pandas as pd
 from yelpapi import YelpAPI
+
+import numpy as np
 
 import webbrowser
 
@@ -17,7 +19,7 @@ df = pd.DataFrame()
 
 #With offset parameter, can get up to 1000 business results
 for offset_num in range(0, 1000, 20):
-    search_results = yelp_api.search_query(term = 'dinner', location = 'McLean, VA', radius = 40000, sort_by = 'rating', offset=offset_num)
+    search_results = yelp_api.search_query(term = 'dinner', location = 'Fairfax, VA', radius = 11265, sort_by = 'rating', offset=offset_num)
     temp_df = pd.DataFrame(search_results['businesses'])
     df = df.append(temp_df, ignore_index=True)
     
@@ -28,7 +30,7 @@ df['address'] = df['location'].apply(lambda x: x['display_address'])
 #Add state, city, zipcode (easily filterable)
 df['state'] = df['address'].apply(lambda x: x[-1].split(', ')[1].split(' ')[0])
 df['city'] = df['address'].apply(lambda x: x[-1].split(', ')[0])
-df['zip_code'] = df['address'].apply(lambda x: x[-1].split(', ')[1].split(' ')[1])
+df['zip_code'] = df['address'].apply(lambda x: x[-1].split(', ')[1].split(' ')[-1])
 
 #Filter out categories
 df['genre'] = df['categories'].apply(lambda x: [ele['title'] for ele in x])
@@ -37,13 +39,18 @@ df['genre'] = df['categories'].apply(lambda x: [ele['title'] for ele in x])
 cat_df = pd.DataFrame(df['genre'].to_list(), columns=['category1', 'category2', 'category3'])                 
 df = pd.concat([df, cat_df], axis=1)
 
+#Transactions split up
+transactions_df = pd.DataFrame(df['transactions'].to_list(), columns = ['transactions1', 'transactions2', 'transactions3'])
+df = pd.concat([df, transactions_df], axis=1)
+
 #Verify cities
 df_city = df['city'].value_counts()
+
+df.to_csv('Fairfax_VA_dinner_7mi.csv')
 
 #Convert Tyson's/Mc Lean/Mclean to just McLean for simplicity
 mclean_list = ['Tysons', 'Tysons Corner', 'Mclean', "Tyson's Corner-Vienna", 'Mc Lean']
 df['city'] = df['city'].apply(lambda x: 'McLean' if x in mclean_list else x)
-
 
 #Filter only for review counts > 50 (realize I may be missing some gems but that's how it goes)
 df_50 = df[df['review_count'] > 50]
@@ -56,6 +63,8 @@ df2 = df_50_VA[df_50_VA['rating'] > 4.0]
 
 #Attempt to get value_counts
 df_cat = df2[['category1', 'category2', 'category3']].apply(pd.value_counts).sum(axis=1).astype(int)
+
+
 
 
 def find_category(df, categories):
